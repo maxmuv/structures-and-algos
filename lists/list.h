@@ -54,6 +54,7 @@ namespace lab618
             {
                 m_pCurrent = src.m_pCurrent;
                 m_pBegin = src.m_pBegin;
+                return *this;
             }
 
             bool operator != (const CIterator&  it) const
@@ -324,6 +325,7 @@ namespace lab618
                 m_pBegin = src.m_pBegin;
                 m_pCurrent = src.m_pCurrent;
                 m_pEnd = src.m_pEnd;
+                return *this;
             }
 
             bool operator != (const CIterator&  it) const
@@ -375,18 +377,21 @@ namespace lab618
             {
                 if (m_pCurrent)
                     return m_pCurrent->data;
+                throw std::runtime_error("Error in getData().\nList is empty.\n");
             }
 
             T& operator* ()
             {
                 if (m_pCurrent)
                     return m_pCurrent->data;
+                throw std::runtime_error("Error in operator *().\nList is empty.\n");
             }
 
             leaf* getLeaf()
             {
                 if (m_pCurrent)
                     return m_pCurrent;
+                return 0;
             }
 
             // применяется в erase и eraseAndNext
@@ -600,5 +605,5 @@ namespace lab618
     private:
         leaf* m_pBegin, *m_pEnd;
     };
-};
+}
 #endif //#ifndef TEMPLATES_LIST_2021_02_11

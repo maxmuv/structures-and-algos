@@ -25,7 +25,7 @@ static std::string makeRandomString(int minL = 7, int maxL = 14)
     for (int i = 0; i < length-3; i++)
     {
         char ch = rand()%26 + 'a';
-        s += std::to_string(ch);
+        s += ch;
     }
     s += "tmp";
     return s;
