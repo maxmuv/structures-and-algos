@@ -36,14 +36,8 @@ namespace lab618
             CIterator(const CIterator &src)
                 : m_pBegin(0), m_pCurrent(0)
             {
-                if (src.m_pBegin != 0)
-                {
-                    m_pBegin = src.m_pBegin;
-                }
-                if (src.m_pCurrent != 0)
-                {
-                    m_pCurrent = src.m_pCurrent;
-                }
+                m_pBegin = src.m_pBegin;
+                m_pCurrent = src.m_pCurrent;
             }
 
             ~CIterator()
@@ -59,11 +53,7 @@ namespace lab618
 
             bool operator != (const CIterator&  it) const
             {
-                if (m_pCurrent == 0)
-                    return false;
-                if (m_pCurrent == it.m_pCurrent)
-                    return false;
-                return true;
+                return ((m_pCurrent != it.m_pCurrent)||(m_pBegin!=it.m_pBegin));
             }
 
             void operator++()
@@ -176,13 +166,14 @@ namespace lab618
                 throw std::runtime_error("Error in popFront.\nThe list is empty.\n");
             leaf *p_tmpLeaf = m_pBegin->pnext;
             T data = m_pBegin->data;
-            delete m_pBegin;
             if (m_pBegin == m_pEnd)
             {
+                delete m_pBegin;
                 m_pBegin = 0;
                 m_pEnd = 0;
                 return data;
             }
+            delete m_pBegin;
             m_pBegin = p_tmpLeaf;
             return data;
         }
@@ -228,7 +219,7 @@ namespace lab618
             }
             inIt.getLeaf()->pnext = it.getLeaf()->pnext;
             delete(it.getLeaf());
-            it = inIt;
+            it.operator =(inIt);
         }
 
         int getSize()
@@ -302,18 +293,9 @@ namespace lab618
             CIterator(const CIterator &src)
                 :m_pBegin(0), m_pCurrent(0), m_pEnd(0)
             {
-                if (src.m_pBegin != 0)
-                {
-                    m_pBegin = src.m_pBegin;
-                }
-                if (src.m_pCurrent != 0)
-                {
-                    m_pCurrent = src.m_pCurrent;
-                }
-                if (src.m_pEnd != 0)
-                {
-                    m_pEnd = src.m_pEnd;
-                }
+                m_pBegin = src.m_pBegin;
+                m_pCurrent = src.m_pCurrent;
+                m_pEnd = src.m_pEnd;
             }
 
             ~CIterator()
@@ -464,7 +446,6 @@ namespace lab618
         {
             if (m_pEnd)
             {
-                m_pEnd->data;
                 T data = m_pEnd->data;
                 if (m_pBegin != m_pEnd)
                 {
