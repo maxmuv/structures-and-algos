@@ -204,7 +204,7 @@ namespace lab618
             }
             while ((inIt.getLeaf() != m_pEnd)&&(inIt.getLeaf()->pnext != it.getLeaf()))
             {
-                   inIt.operator ++();
+                inIt.operator ++();
             }
             if (inIt.getLeaf() == m_pEnd)
             {
@@ -214,6 +214,7 @@ namespace lab618
             {
                 delete(m_pEnd);
                 m_pEnd = inIt.getLeaf();
+                m_pEnd->pnext = 0;
                 it.operator =(inIt);
                 return;
             }
@@ -489,6 +490,7 @@ namespace lab618
                     leaf *p_tmpLeaf = m_pBegin->pnext;
                     delete(m_pBegin);
                     m_pBegin = p_tmpLeaf;
+                    m_pBegin->pprev = 0;
                     return data;
                 }
                 delete(m_pBegin);
@@ -551,13 +553,17 @@ namespace lab618
 
         int getSize()
         {
-            int size = 0;
+            if (m_pBegin == 0)
+                return 0;
             CIterator it(m_pBegin);
-            while (m_pBegin && (it.getLeaf() != m_pEnd))
+            it.operator ++();
+            int size = 0;
+            while (it.getLeaf() != m_pEnd)
             {
-                it.operator ++();
                 size++;
+                it.operator ++();
             }
+            size++;
             return size;
         }
 
@@ -579,7 +585,6 @@ namespace lab618
         {
             CIterator it;
             it.setLeafPostEnd(m_pEnd);
-            it.operator --();
             return it;
         }
 

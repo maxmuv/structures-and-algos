@@ -79,12 +79,12 @@ void TestListFunction()
 
     int size = single_list.getSize();
 
-    for (int i = 2; i<size; ++i)
+    for (int i = 2; i<size; ++i){
         ++it;
+        single_list.erase(it);
+    }
 
-    single_list.erase(it);
-
-    assert(single_list.getSize() == ELEMENTS_COUNT - 2);
+    assert(single_list.getSize() == 2);
 
     single_list.clear();
 
@@ -120,8 +120,9 @@ void TestListFunction()
 
     assert(list.getSize() == ELEMENTS_COUNT);
 
-    for (TestList::CIterator it = list.end(); it.isValid(); --it)
+    for (TestList::CIterator it = list.end(); it != list.begin();)
     {
+        --it;
         it.getLeaf();
         TestStruct ts = *it;
         list.eraseAndNext(it);
