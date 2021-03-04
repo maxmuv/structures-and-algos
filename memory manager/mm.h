@@ -51,34 +51,40 @@ namespace lab618
             {
                 m_pBlocks = newBlock();
                 m_pCurrentBlk = m_pBlocks;
-                m_pCurrentBlk->usedCount++;
+                m_pCurrentBlk->usedCount = 1;
                 if (m_blkSize == 1)
                     m_pCurrentBlk->firstFreeIndex = -1;
                 else
-                    m_pCurrentBlk->firstFreeIndex++;
+                    m_pCurrentBlk->firstFreeIndex = 1;
+
                 memset(reinterpret_cast<void*>(m_pCurrentBlk->pdata), 0, sizeof(T));
                 ::new(reinterpret_cast<void*>(m_pCurrentBlk->pdata)) T;
+
                 return m_pCurrentBlk->pdata;
             }
             if (m_pCurrentBlk->firstFreeIndex == -1)
             {
                 m_pCurrentBlk->pnext = newBlock();
                 m_pCurrentBlk = m_pCurrentBlk->pnext;
-                m_pCurrentBlk->usedCount++;
+                m_pCurrentBlk->usedCount = 1;
                 if (m_blkSize == 1)
                     m_pCurrentBlk->firstFreeIndex = -1;
                 else
-                    m_pCurrentBlk->firstFreeIndex++;
+                    m_pCurrentBlk->firstFreeIndex=1;
+
                 memset(reinterpret_cast<void*>(m_pCurrentBlk->pdata), 0, sizeof(T));
                 ::new(reinterpret_cast<void*>(m_pCurrentBlk->pdata)) T;
+
                 return m_pCurrentBlk->pdata;
             }
             T* object = &(m_pCurrentBlk->pdata[m_pCurrentBlk->firstFreeIndex]);
             int *newFirstFreeIndex = reinterpret_cast<int *>(&(m_pCurrentBlk->pdata[m_pCurrentBlk->firstFreeIndex]));            
             m_pCurrentBlk->firstFreeIndex = *newFirstFreeIndex;
             m_pCurrentBlk->usedCount++;
+
             memset(reinterpret_cast<void*>(object), 0, sizeof(T));
             ::new(reinterpret_cast<void*>(object)) T;
+
             return object;
         }
 
@@ -103,32 +109,48 @@ namespace lab618
                 }
             }
             if (find != -1) {
+                bool *manager_map = new bool[m_blkSize];
+                memset(reinterpret_cast<void *>(manager_map), 0, m_blkSize*sizeof(bool));
                 int freeindex = p_tmpblock->firstFreeIndex;
-                if (freeindex != -1)
-                    while (*reinterpret_cast<int *>(&(p_tmpblock->pdata[freeindex])) != -1) {
-                        if (freeindex == find)
-                            return false;
-                        freeindex = *reinterpret_cast<int *>(&(p_tmpblock->pdata[freeindex]));
-                    }
-                if (freeindex == find)
+                int lastfreeindex = freeindex;
+                for(;freeindex!=-1; freeindex = *reinterpret_cast<int *>(&(p_tmpblock->pdata[freeindex]))) {
+                    manager_map[freeindex] = 1;
+                    lastfreeindex = freeindex;
+                }
+                if (manager_map[find] == 1) {
+                    delete [] manager_map;
+                    manager_map = 0;
                     return false;
+                }
+
                 (&(p_tmpblock->pdata[find]))->~T();
                 memset(reinterpret_cast<void*>(&(p_tmpblock->pdata[find])), 0, sizeof(T));
-                if (freeindex != -1)
-                    *reinterpret_cast<int *>(&(p_tmpblock->pdata[freeindex])) = find;
-                else
+
+                if (p_tmpblock->firstFreeIndex == -1) {
                     p_tmpblock->firstFreeIndex = find;
-                *reinterpret_cast<int *>(&(p_tmpblock->pdata[find])) = -1;
-                p_tmpblock->usedCount--;
-                if (p_tmpblock->usedCount == 0){
-                    if (p_prevblock != 0)
-                        p_prevblock->pnext = p_tmpblock->pnext;
-                    else
-                        m_pBlocks = p_tmpblock->pnext;
-                    if (m_pCurrentBlk == p_tmpblock)
-                        m_pCurrentBlk = p_prevblock;
-                    deleteBlock(p_tmpblock);
+                    *reinterpret_cast<int *>(&(p_tmpblock->pdata[find])) = -1;
+                    p_tmpblock->usedCount--;
+                } else {
+                    *reinterpret_cast<int *>(&(p_tmpblock->pdata[find])) = -1;
+                    *reinterpret_cast<int *>(&(p_tmpblock->pdata[lastfreeindex])) = find;
+                    p_tmpblock->usedCount--;
                 }
+
+                if (p_tmpblock->usedCount == 0){
+                    block * p_nextblock = p_tmpblock->pnext;
+                    deleteBlock(p_tmpblock);
+                    if (p_prevblock){
+                      p_prevblock->pnext = p_nextblock;
+                    } else {
+                      m_pBlocks = p_nextblock;
+                    }
+                    if (!(p_nextblock))
+                        m_pCurrentBlk = p_prevblock;
+                    p_tmpblock = 0;
+                }
+
+                delete [] manager_map;
+                manager_map = 0;
                 return true;
             }
             return false;
@@ -178,23 +200,32 @@ namespace lab618
         {
             if (m_isDeleteElementsOnDestruct)
             {
+                for (int i = 0; i < m_blkSize; i++)
+                {
+                    int tmp_index = p->firstFreeIndex;
+                    bool free = false;
+                    while (tmp_index != -1)
+                    {
+                        if (tmp_index == i)
+                            free = true;
+                        tmp_index = *reinterpret_cast<int *>(&(p->pdata[tmp_index]));
+                    }
+                    if (!free) {
+                        (&(p->pdata[i]))->~T();
+                        memset(reinterpret_cast<void*>(&(p->pdata[i])), 0, sizeof(T));
+                    }
+                }
                 while (p->firstFreeIndex != -1)
                 {
                     int tmp_index = *reinterpret_cast<int *>(&(p->pdata[p->firstFreeIndex]));
                     memset(reinterpret_cast<void*>(&p->pdata[p->firstFreeIndex]), 0, sizeof(T));
-                    ::new(reinterpret_cast<void*>(&p->pdata[p->firstFreeIndex])) T;
                     p->firstFreeIndex = tmp_index;
-                }
-                for (int i = 0; i < m_blkSize; i++)
-                {
-                    (&(p->pdata[i]))->~T();
-                    memset(reinterpret_cast<void*>(&(p->pdata[i])), 0, sizeof(T));
                 }
                 free(p->pdata);
                 delete p;
                 return;
             }
-            if (p->firstFreeIndex != 0)
+            if (p->firstFreeIndex != 0)//not true;
                 throw std::runtime_error("Error in deleteBlock().\nBlock isn't empty.\n");
             free(p->pdata);
             delete p;

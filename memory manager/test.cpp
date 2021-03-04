@@ -4,7 +4,7 @@
 #include <string>
 #include <cassert>
 
-const int ELEMENTS_COUNT = 1000000;
+const int ELEMENTS_COUNT = 100;
 
 struct TestStruct
 {
@@ -47,7 +47,7 @@ static void generate(TestStruct *pts)
 
 void TestMMFunction()
 {
-    TestListStruct TestL;
+    TestListStruct TestL = {0, 0};
     TestMemoryManager TestTrueMM(20, true);
     for (int i = 0; i < ELEMENTS_COUNT; i++)
     {
@@ -66,10 +66,10 @@ void TestMMFunction()
         generate(TestL.p_end);
     }
     p_teststruct = TestL.p_head;
-    TestStruct *p_tmpnext;
-    for (int i = 0; i < ELEMENTS_COUNT; i++) {
+    TestStruct *p_tmpnext = p_teststruct;
+    for (int j = 0; j < ELEMENTS_COUNT; j++) {
         p_tmpnext = p_teststruct->next;
-        assert(TestFalseMM.deleteObject(p_teststruct) == true);
+        TestFalseMM.deleteObject(p_teststruct);
         p_teststruct = p_tmpnext;
     }
     TestFalseMM.clear();

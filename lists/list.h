@@ -510,7 +510,8 @@ namespace lab618
                 if (it.isValid())
                 {
                     it.getLeaf()->pnext = p_tmpLeaf->pnext;
-                    p_tmpLeaf->pnext->pprev = it.getLeaf();
+                    if (p_tmpLeaf->pnext != 0)
+                        p_tmpLeaf->pnext->pprev = it.getLeaf();
                 }
                 else
                 {
@@ -535,7 +536,8 @@ namespace lab618
                 if (it.isValid())
                 {
                     it.getLeaf()->pprev = p_tmpLeaf->pprev;
-                    p_tmpLeaf->pprev->pnext = it.getLeaf();
+                    if (p_tmpLeaf->pprev != 0)
+                        p_tmpLeaf->pprev->pnext = it.getLeaf();
                 }
                 else
                 {
