@@ -4,7 +4,7 @@
 #include <string>
 #include "list.h"
 
-const int ELEMENTS_COUNT = 1000000;
+const int ELEMENTS_COUNT = 10000;
 
 struct TestStruct {
   std::string key;
@@ -35,141 +35,271 @@ static void generate(TestStruct *pts) {
 }
 
 void TestListFunction() {
-  // тест односвязного списка
+  {
+    // тест односвязного списка
 
-  TestSingleList single_list;
-  for (int i = 0; i < ELEMENTS_COUNT; ++i) {
-    TestStruct ts;
-    generate(&ts);
-    single_list.pushBack(ts);
-  }
+    TestSingleList single_list;
+    for (int i = 0; i < ELEMENTS_COUNT; ++i) {
+      TestStruct ts;
+      generate(&ts);
+      single_list.pushBack(ts);
+    }
 
-  assert(single_list.getSize() == ELEMENTS_COUNT);
+    assert(single_list.getSize() == ELEMENTS_COUNT);
 
-  for (TestSingleList::CIterator it = single_list.begin(); it.isValid(); ++it) {
-    it.getLeaf();
-    TestStruct ts = *it;
-    single_list.erase(it);
-  }
-  int size = single_list.getSize();
+    for (TestSingleList::CIterator it = single_list.begin(); it.isValid();
+         ++it) {
+      it.getLeaf();
+      TestStruct ts = *it;
+      single_list.erase(it);
+    }
+    int size = single_list.getSize();
 
-  assert(single_list.getSize() == 0);
+    assert(single_list.getSize() == 0);
 
-  for (int i = 0; i < ELEMENTS_COUNT; ++i) {
-    TestStruct ts;
-    generate(&ts);
-    single_list.pushFront(ts);
-  }
+    for (int i = 0; i < ELEMENTS_COUNT; ++i) {
+      TestStruct ts;
+      generate(&ts);
+      single_list.pushFront(ts);
+    }
 
-  assert(single_list.getSize() == ELEMENTS_COUNT);
+    assert(single_list.getSize() == ELEMENTS_COUNT);
 
-  TestSingleList::CIterator it = single_list.begin();
+    TestSingleList::CIterator it = single_list.begin();
 
-  ++it;
-  ++it;
-
-  single_list.erase(it);
-
-  size = single_list.getSize();
-
-  for (int i = 2; i < size; ++i) {
     ++it;
+    ++it;
+
     single_list.erase(it);
+
+    size = single_list.getSize();
+
+    for (int i = 2; i < size; ++i) {
+      ++it;
+      single_list.erase(it);
+    }
+
+    assert(single_list.getSize() == 2);
+
+    single_list.clear();
+
+    assert(single_list.getSize() == 0);
+
+    /// тест двусвязного списка
+
+    TestList list;
+    for (int i = 0; i < ELEMENTS_COUNT; ++i) {
+      TestStruct ts;
+      generate(&ts);
+      list.pushBack(ts);
+    }
+
+    assert(list.getSize() == ELEMENTS_COUNT);
+
+    for (TestList::CIterator it = list.begin(); it.isValid(); ++it) {
+      it.getLeaf();
+      TestStruct ts = *it;
+      list.erase(it);
+    }
+
+    assert(list.getSize() == 0);
+
+    for (int i = 0; i < ELEMENTS_COUNT; ++i) {
+      TestStruct ts;
+      generate(&ts);
+      list.pushFront(ts);
+    }
+
+    assert(list.getSize() == ELEMENTS_COUNT);
+    TestList::CIterator it1 = list.end();
+    TestList::CIterator it2 = list.begin();
+    for (TestList::CIterator it = list.end(); it != list.begin();) {
+      --it;
+      it.getLeaf();
+      TestStruct ts = *it;
+      list.eraseAndNext(it);
+    }
+
+    assert(list.getSize() == 0);
+
+    for (int i = 0; i < ELEMENTS_COUNT; ++i) {
+      TestStruct ts;
+      generate(&ts);
+      list.pushFront(ts);
+    }
+
+    assert(list.getSize() == ELEMENTS_COUNT);
+
+    TestList::CIterator itList = list.begin();
+
+    ++itList;
+    ++itList;
+    ++itList;
+
+    list.erase(itList);
+    list.eraseAndNext(itList);
+
+    assert(list.getSize() == ELEMENTS_COUNT - 2);
+
+    list.clear();
+
+    assert(list.getSize() == 0);
+
+    for (int i = 0; i < ELEMENTS_COUNT; ++i) {
+      TestStruct ts;
+      generate(&ts);
+      list.pushBack(ts);
+    }
+
+    assert(list.getSize() == ELEMENTS_COUNT);
+
+    for (int i = 0; i < ELEMENTS_COUNT; ++i) {
+      list.popFront();
+    }
+
+    assert(list.getSize() == 0);
+
+    for (int i = 0; i < ELEMENTS_COUNT; ++i) {
+      TestStruct ts;
+      generate(&ts);
+      list.pushBack(ts);
+    }
+
+    assert(list.getSize() == ELEMENTS_COUNT);
+
+    for (int i = 0; i < ELEMENTS_COUNT; ++i) {
+      list.popBack();
+    }
+
+    assert(list.getSize() == 0);
   }
+  {
+    TestSingleList slist;
+    for (int i = 0; i < ELEMENTS_COUNT; ++i) {
+      TestStruct ts;
+      generate(&ts);
+      slist.pushBack(ts);
+      slist.popFront();
+      slist.pushFront(ts);
+      slist.popFront();
+    }
 
-  assert(single_list.getSize() == 2);
+    assert(slist.getSize() == 0);
 
-  single_list.clear();
+    TestList dlist;
+    for (int i = 0; i < ELEMENTS_COUNT; ++i) {
+      TestStruct ts;
+      generate(&ts);
+      dlist.pushBack(ts);
+      dlist.popFront();
+      dlist.pushFront(ts);
+      dlist.popFront();
+      dlist.pushBack(ts);
+      dlist.popBack();
+      dlist.pushFront(ts);
+      dlist.popBack();
+    }
 
-  assert(single_list.getSize() == 0);
-
-  /// тест двусвязного списка
-
-  TestList list;
-  for (int i = 0; i < ELEMENTS_COUNT; ++i) {
-    TestStruct ts;
-    generate(&ts);
-    list.pushBack(ts);
+    assert(dlist.getSize() == 0);
   }
+  {
+    TestSingleList slist;
+    for (int i = 0; i < ELEMENTS_COUNT; ++i) {
+      TestStruct ts;
+      generate(&ts);
+      slist.pushBack(ts);
+    }
 
-  assert(list.getSize() == ELEMENTS_COUNT);
+    TestSingleList::CIterator it = slist.begin();
+    TestSingleList::CIterator prev_it;
 
-  for (TestList::CIterator it = list.begin(); it.isValid(); ++it) {
-    it.getLeaf();
-    TestStruct ts = *it;
-    list.erase(it);
+    while (it.isValid()) {
+      prev_it = it;
+      ++it;
+    }
+
+    for (TestSingleList::CIterator i = prev_it; i.isValid();) slist.erase(i);
+
+    assert(slist.getSize() == 0);
+
+    for (int i = 0; i < ELEMENTS_COUNT; ++i) {
+      TestStruct ts;
+      generate(&ts);
+      slist.pushBack(ts);
+    }
+
+    it = slist.begin();
+
+    while (it.isValid()) {
+      prev_it = it;
+      ++it;
+    }
+
+    TestSingleList::CIterator pprev_it = slist.begin();
+    it = pprev_it;
+
+    while (it != prev_it) {
+      pprev_it = it;
+      ++it;
+    }
+
+    for (TestSingleList::CIterator i = pprev_it; i.isValid();) slist.erase(i);
+    slist.popFront();
+
+    assert(slist.getSize() == 0);
   }
-
-  assert(list.getSize() == 0);
-
-  for (int i = 0; i < ELEMENTS_COUNT; ++i) {
-    TestStruct ts;
-    generate(&ts);
-    list.pushFront(ts);
-  }
-
-  assert(list.getSize() == ELEMENTS_COUNT);
-  TestList::CIterator it1 = list.end();
-  TestList::CIterator it2 = list.begin();
-  for (TestList::CIterator it = list.end(); it != list.begin();) {
+  {
+    TestList dlist;
+    for (int i = 0; i < ELEMENTS_COUNT; ++i) {
+      TestStruct ts;
+      generate(&ts);
+      dlist.pushBack(ts);
+    }
+    TestList::CIterator it = dlist.end();
     --it;
-    it.getLeaf();
-    TestStruct ts = *it;
-    list.eraseAndNext(it);
+    for (; it.isValid();) dlist.erase(it);
+
+    assert(dlist.getSize() == 0);
+
+    for (int i = 0; i < ELEMENTS_COUNT; ++i) {
+      TestStruct ts;
+      generate(&ts);
+      dlist.pushBack(ts);
+    }
+    it = dlist.end();
+    --it;
+    --it;
+    for (; it.isValid();) dlist.erase(it);
+
+    dlist.popFront();
+
+    assert(dlist.getSize() == 0);
+
+    for (int i = 0; i < ELEMENTS_COUNT; ++i) {
+      TestStruct ts;
+      generate(&ts);
+      dlist.pushBack(ts);
+    }
+
+    for (TestList::CIterator i = dlist.begin(); i.isValid();)
+      dlist.eraseAndNext(i);
+
+    assert(dlist.getSize() == 0);
+
+    for (int i = 0; i < ELEMENTS_COUNT; ++i) {
+      TestStruct ts;
+      generate(&ts);
+      dlist.pushBack(ts);
+    }
+
+    TestList::CIterator i = dlist.begin();
+    ++i;
+    for (; i.isValid();) dlist.eraseAndNext(i);
+
+    dlist.popBack();
+
+    assert(dlist.getSize() == 0);
   }
-
-  assert(list.getSize() == 0);
-
-  for (int i = 0; i < ELEMENTS_COUNT; ++i) {
-    TestStruct ts;
-    generate(&ts);
-    list.pushFront(ts);
-  }
-
-  assert(list.getSize() == ELEMENTS_COUNT);
-
-  TestList::CIterator itList = list.begin();
-
-  ++itList;
-  ++itList;
-  ++itList;
-
-  list.erase(itList);
-  list.eraseAndNext(itList);
-
-  assert(list.getSize() == ELEMENTS_COUNT - 2);
-
-  list.clear();
-
-  assert(list.getSize() == 0);
-
-  for (int i = 0; i < ELEMENTS_COUNT; ++i) {
-    TestStruct ts;
-    generate(&ts);
-    list.pushBack(ts);
-  }
-
-  assert(list.getSize() == ELEMENTS_COUNT);
-
-  for (int i = 0; i < ELEMENTS_COUNT; ++i) {
-    list.popFront();
-  }
-
-  assert(list.getSize() == 0);
-
-  for (int i = 0; i < ELEMENTS_COUNT; ++i) {
-    TestStruct ts;
-    generate(&ts);
-    list.pushBack(ts);
-  }
-
-  assert(list.getSize() == ELEMENTS_COUNT);
-
-  for (int i = 0; i < ELEMENTS_COUNT; ++i) {
-    list.popBack();
-  }
-
-  assert(list.getSize() == 0);
 }
 
 int main() { TestListFunction(); }
