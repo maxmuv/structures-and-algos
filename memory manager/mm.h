@@ -162,8 +162,11 @@ class CMemoryManager {
   // ??????? ??????, ??????? ?? m_isDeleteElementsOnDestruct
   void clear() {
     if (!m_pBlocks) return;
+    if (!m_isDeleteElementsOnDestruct && !areAllBlocksEmpty())
+      throw CException();
     block *p_block = m_pBlocks;
     block *p_nextblock = p_block->pnext;
+
     m_pBlocks = 0;
     m_pCurrentBlk = 0;
 
@@ -199,9 +202,7 @@ class CMemoryManager {
     memset(reinterpret_cast<void *>(manager_map), 0, m_blkSize * sizeof(bool));
 
     if (!m_isDeleteElementsOnDestruct)
-      if (p->usedCount != 0)
-        throw std::runtime_error(
-            "Error in deleteBlock().\nBlock isn't empty.\n");
+      if (p->usedCount != 0) throw CException();
 
     if (m_isDeleteElementsOnDestruct) {
       int freeindex = p->firstFreeIndex;
@@ -209,9 +210,7 @@ class CMemoryManager {
            freeindex = *reinterpret_cast<int *>(&(p->pdata[freeindex]))) {
         manager_map[freeindex] = 1;
       }
-    }
 
-    if (m_isDeleteElementsOnDestruct) {
       for (int i = 0; i < m_blkSize; i++)
         if (manager_map[i] == 0) {
           (&(p->pdata[i]))->~T();
@@ -224,6 +223,16 @@ class CMemoryManager {
     free(p->pdata);
     delete p;
     p = 0;
+  }
+
+ private:
+  bool areAllBlocksEmpty() {
+    block *tmp_block = m_pBlocks;
+    while (tmp_block != 0) {
+      if (tmp_block->usedCount != 0) return false;
+      tmp_block = tmp_block->pnext;
+    }
+    return true;
   }
 
   // ?????? ?????

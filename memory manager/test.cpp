@@ -188,8 +188,22 @@ void TestMMFunction() {
       if (!TestTrueMM3.deleteObject(tmp_pointer)) std::cout << "Error";
       for (int y = 2; y < 100; y++) p_teststruct = p_teststruct->next;
     }
-    for (int z = 0; z < ELEMENTS_COUNT / 100; z++)
-      assert(second_pointers[z] == TestTrueMM3.newObject());
+    TestStruct **teststructures = new TestStruct *[ELEMENTS_COUNT / 100];
+    for (int z = 0; z < ELEMENTS_COUNT / 100; z++) {
+      teststructures[z] = TestTrueMM3.newObject();
+      assert(second_pointers[z] == teststructures[z]);
+      generate(teststructures[z]);
+    }
+    for (int z = ELEMENTS_COUNT / 100 - 1; z >= 0; z--) {
+      if (!TestTrueMM3.deleteObject(teststructures[z])) std::cout << "Error";
+    }
+    for (int z = 0; z < ELEMENTS_COUNT / 100; z++) {
+      teststructures[z] = TestTrueMM3.newObject();
+      assert(second_pointers[z] == teststructures[z]);
+      generate(teststructures[z]);
+    }
+    delete[] teststructures;
+    delete[] second_pointers;
     TestTrueMM3.clear();
   }
   {  // constructor
