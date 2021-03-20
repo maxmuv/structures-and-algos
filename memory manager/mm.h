@@ -141,7 +141,7 @@ class CMemoryManager {
 
       if (p_tmpblock->usedCount == 0) {
         block *p_nextblock = p_tmpblock->pnext;
-        deleteBlock(p_tmpblock);
+        deleteBlock(p_tmpblock, manager_map);
         if (p_prevblock) {
           p_prevblock->pnext = p_nextblock;
         } else {
@@ -170,12 +170,17 @@ class CMemoryManager {
     m_pBlocks = 0;
     m_pCurrentBlk = 0;
 
+    bool *manager_map = new bool[m_blkSize];
+
     while (p_nextblock != 0) {
-      deleteBlock(p_block);
+      deleteBlock(p_block, manager_map);
       p_block = p_nextblock;
       p_nextblock = p_block->pnext;
     }
-    deleteBlock(p_block);
+
+    deleteBlock(p_block, manager_map);
+    delete[] manager_map;
+    manager_map = 0;
   }
 
  private:
@@ -197,8 +202,7 @@ class CMemoryManager {
   }
 
   // ?????????? ?????? ????? ??????. ??????????? ? clear
-  void deleteBlock(block *p) {
-    bool *manager_map = new bool[m_blkSize];
+  void deleteBlock(block *p, bool *manager_map) {
     memset(reinterpret_cast<void *>(manager_map), 0, m_blkSize * sizeof(bool));
 
     if (!m_isDeleteElementsOnDestruct)
@@ -219,7 +223,6 @@ class CMemoryManager {
           memset(reinterpret_cast<void *>(&(p->pdata[i])), 0, sizeof(T));
         }
     }
-    delete[] manager_map;
     free(p->pdata);
     delete p;
     p = 0;
