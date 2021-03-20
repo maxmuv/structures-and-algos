@@ -96,12 +96,12 @@ void TestListFunction() {
 
     assert(list.getSize() == ELEMENTS_COUNT);
 
-    for (TestList::CIterator it = list.begin(); it.isValid(); ++it) {
+    for (TestList::CIterator it = list.begin(); it != list.end(); ++it) {
       it.getLeaf();
       TestStruct ts = *it;
       list.erase(it);
     }
-
+    size = list.getSize();
     assert(list.getSize() == 0);
 
     for (int i = 0; i < ELEMENTS_COUNT; ++i) {
@@ -294,10 +294,24 @@ void TestListFunction() {
 
     TestList::CIterator i = dlist.begin();
     ++i;
-    for (; i.isValid();) dlist.eraseAndNext(i);
+    for (; i != dlist.end();) dlist.eraseAndNext(i);
 
     dlist.popBack();
 
+    assert(dlist.getSize() == 0);
+  }
+  {
+    TestList dlist;
+    for (int i = 0; i < ELEMENTS_COUNT; ++i) {
+      TestStruct ts;
+      generate(&ts);
+      dlist.pushBack(ts);
+    }
+    for (TestList::CIterator it = dlist.end(); it.isValid(); --it) {
+      TestStruct ts = *it;
+      dlist.eraseAndNext(it);
+    }
+    std::cout << dlist.getSize();
     assert(dlist.getSize() == 0);
   }
 }

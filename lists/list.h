@@ -248,11 +248,13 @@ class CDualLinkedList {
 
     T& getData() {
       if (m_pCurrent) return m_pCurrent->data;
+      if (m_pEnd) return m_pEnd->data;
       throw std::runtime_error("Error in getData().\nList is empty.\n");
     }
 
     T& operator*() {
       if (m_pCurrent) return m_pCurrent->data;
+      if (m_pEnd) return m_pEnd->data;
       throw std::runtime_error("Error in operator *().\nList is empty.\n");
     }
 
@@ -282,7 +284,7 @@ class CDualLinkedList {
       m_pEnd = p;
     }
 
-    bool isValid() { return (m_pCurrent != 0); }
+    bool isValid() { return ((m_pCurrent != 0) || (m_pEnd != 0)); }
 
    private:
     //храним голову списка, если мы находимся перед началом
@@ -382,8 +384,8 @@ class CDualLinkedList {
 
   // изменяет состояние итератора. выставляет следующую позицию.
   void eraseAndNext(CIterator& it) {
-    if (!it.isValid()) return;
     leaf* p = it.getLeaf();
+    if (p == 0) return;
 
     leaf* pnext = 0;
     if (p == m_pEnd) {
