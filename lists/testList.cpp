@@ -96,7 +96,7 @@ void TestListFunction() {
 
     assert(list.getSize() == ELEMENTS_COUNT);
 
-    for (TestList::CIterator it = list.begin(); it != list.end(); ++it) {
+    for (TestList::CIterator it = list.begin(); it.isValid(); ++it) {
       it.getLeaf();
       TestStruct ts = *it;
       list.erase(it);
@@ -113,8 +113,7 @@ void TestListFunction() {
     assert(list.getSize() == ELEMENTS_COUNT);
     TestList::CIterator it1 = list.end();
     TestList::CIterator it2 = list.begin();
-    for (TestList::CIterator it = list.end(); it != list.begin();) {
-      --it;
+    for (TestList::CIterator it = list.end(); it.isValid(); --it) {
       it.getLeaf();
       TestStruct ts = *it;
       list.eraseAndNext(it);
@@ -256,7 +255,6 @@ void TestListFunction() {
       dlist.pushBack(ts);
     }
     TestList::CIterator it = dlist.end();
-    --it;
     for (; it.isValid();) dlist.erase(it);
 
     assert(dlist.getSize() == 0);
@@ -267,7 +265,6 @@ void TestListFunction() {
       dlist.pushBack(ts);
     }
     it = dlist.end();
-    --it;
     --it;
     for (; it.isValid();) dlist.erase(it);
 
@@ -294,7 +291,7 @@ void TestListFunction() {
 
     TestList::CIterator i = dlist.begin();
     ++i;
-    for (; i != dlist.end();) dlist.eraseAndNext(i);
+    for (; i.isValid();) dlist.eraseAndNext(i);
 
     dlist.popBack();
 
@@ -312,6 +309,26 @@ void TestListFunction() {
       dlist.eraseAndNext(it);
     }
     std::cout << dlist.getSize();
+    assert(dlist.getSize() == 0);
+  }
+  {
+    TestList dlist;
+    for (int i = 0; i < ELEMENTS_COUNT; ++i) {
+      TestStruct ts;
+      generate(&ts);
+      dlist.pushBack(ts);
+    }
+    int ik = 0;
+    int current_count = ELEMENTS_COUNT;
+    for (TestList::CIterator it = dlist.begin(); it.isValid(); ++it, ++ik) {
+      TestStruct ts = *it;
+      if (ik % 3 == 0) {
+        dlist.erase(it);  // удаляем каждый третий
+        --current_count;
+        assert(dlist.getSize() == current_count);
+      }
+    }
+    dlist.clear();
     assert(dlist.getSize() == 0);
   }
 }

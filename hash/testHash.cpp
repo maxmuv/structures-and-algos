@@ -46,21 +46,18 @@ int Compare(const TestStruct* el1, const TestStruct* el2) {
 }
 
 unsigned int HashFunc(const TestStruct* pElement) {
-  int hash_table_size = 80;
   size_t size = pElement->key.size();
   unsigned int hash = 0;
   for (size_t i = 0; i < size; i++) {
     unsigned int el = 0;
     for (size_t j = 0; j < LENGTH; j++) {
-      if (pElement->key[i] == ALPHABET[j]) {
-        el = static_cast<unsigned int>(j);
-      }
+      el = static_cast<unsigned int>(pElement->key[i]);
     }
     for (size_t j = 0; j < i; j++) {
-      el = el * LENGTH % hash_table_size;
+      el = el * LENGTH;
     }
     hash += el;
-    hash = hash % hash_table_size;
+    hash = hash;
   }
   return hash;
 }
@@ -69,7 +66,7 @@ void TestSortFunction() {
   TestStruct ts;
   generate(&ts);
   unsigned int hash = HashFunc(&ts);
-  std::cout << hash;
+  std::cout << hash / 80;
 }
 
 int main() { TestSortFunction(); }
