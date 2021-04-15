@@ -3,9 +3,10 @@
 #include <cassert>
 #include <cstring>
 #include <string>
-//#include "hash.h"
+#include <vector>
+#include "hash.h"
 
-const int ELEMENTS_COUNT = 1000;
+const int ELEMENTS_COUNT = 100;
 
 struct TestStruct {
   std::wstring key;
@@ -20,13 +21,11 @@ const int LENGTH = sizeof(ALPHABET) / sizeof(wchar_t);
 
 static std::wstring makeRandomString(int minL = 7, int maxL = 14) {
   setlocale(LC_ALL, "Russian");
-  srand(time(NULL));
   int length = rand() % maxL + minL;
   std::wstring s;
   s.reserve(length);
   // сделать случайную строку
   wchar_t ch;
-  srand(time(NULL));
   for (int i = 0; i < length; i++) {
     int choose = rand() % (LENGTH - 1);
     ch = ALPHABET[choose];
@@ -69,4 +68,32 @@ void TestSortFunction() {
   std::cout << hash / 80;
 }
 
-int main() { TestSortFunction(); }
+int main() {
+  lab618::CHash<TestStruct, HashFunc, Compare> h_table(256, 20);
+  TestStruct* test = new TestStruct[ELEMENTS_COUNT];
+  for (int i = 0; i < ELEMENTS_COUNT; i++) {
+    TestStruct ts;
+    generate(&ts);
+    test[i] = ts;
+  }
+  for (int i = 0; i < ELEMENTS_COUNT; i++) {
+    // assert(h_table.add(&(test[i])) == true);
+    h_table.add(&(test[i]));
+  }
+  for (int i = 0; i < ELEMENTS_COUNT; i++) {
+    assert(h_table.remove(test[i]) == true);
+    assert(h_table.remove(test[i]) == false);
+    assert(h_table.find(test[i]) == NULL);
+    assert(h_table.add(&test[i]) == true);
+    assert(h_table.find(test[i]) == &test[i]);
+    assert(h_table.add(&test[i]) == false);
+    assert(h_table.update(&test[i]) == true);
+    assert(h_table.remove(test[i]) == true);
+    assert(h_table.update(&test[i]) == false);
+    assert(h_table.find(test[i]) == &test[i]);
+  }
+  h_table.clear();
+  for (int i = 0; i < ELEMENTS_COUNT; i++) {
+    assert(h_table.find(test[i]) == NULL);
+  }
+}

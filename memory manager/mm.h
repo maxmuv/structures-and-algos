@@ -147,7 +147,7 @@ class CMemoryManager {
         } else {
           m_pBlocks = p_nextblock;
         }
-        if (!(p_nextblock)) m_pCurrentBlk = p_prevblock;
+        m_pCurrentBlk = m_pBlocks;
         p_tmpblock = 0;
       }
 
@@ -188,6 +188,7 @@ class CMemoryManager {
   block *newBlock() {
     block *p_block = new block{0, 0, 0, 0};
     p_block->pdata = (T *)malloc(m_blkSize * sizeof(T));
+    if (p_block->pdata == NULL) throw CException();
     for (int i = 0; i < m_blkSize; i++) {
       memset(reinterpret_cast<void *>(&(p_block->pdata[i])), 0, sizeof(T));
     }
