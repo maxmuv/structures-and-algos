@@ -6,7 +6,7 @@
 #include <vector>
 #include "hash.h"
 
-const int ELEMENTS_COUNT = 100;
+const int ELEMENTS_COUNT = 80000;
 
 struct TestStruct {
   std::wstring key;

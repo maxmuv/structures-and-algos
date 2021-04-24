@@ -78,7 +78,7 @@ class CHash {
   создаваемые листики списков разрешения коллизий храним в менеджере памяти.
   */
   CHash(int hashTableSize, int defaultBlockSize)
-      : m_tableSize(hashTableSize), m_Memory(defaultBlockSize) {
+      : m_tableSize(hashTableSize), m_Memory(defaultBlockSize, true) {
     m_pTable = new leaf*[hashTableSize];
     for (int i = 0; i < hashTableSize; i++) {
       m_pTable[i] = nullptr;
@@ -102,13 +102,6 @@ class CHash {
 
     if (f_leaf != nullptr) return false;
 
-    f_leaf = m_pTable[idx];
-    leaf* prev_leaf = nullptr;
-    while (f_leaf != nullptr) {
-      prev_leaf = f_leaf;
-      f_leaf = f_leaf->pnext;
-    }
-
     leaf* cr_leaf;
     try {
       cr_leaf = m_Memory.newObject();
@@ -116,12 +109,9 @@ class CHash {
       throw CMemoryException();
     }
     cr_leaf->pData = pElement;
-    cr_leaf->pnext = nullptr;
+    cr_leaf->pnext = m_pTable[idx];
 
-    if (prev_leaf == nullptr)
-      m_pTable[idx] = cr_leaf;
-    else
-      prev_leaf->pnext = cr_leaf;
+    m_pTable[idx] = cr_leaf;
 
     return true;
   }
@@ -139,13 +129,6 @@ class CHash {
       return true;
     }
 
-    f_leaf = m_pTable[idx];
-    leaf* prev_leaf = nullptr;
-    while (f_leaf != nullptr) {
-      prev_leaf = f_leaf;
-      f_leaf = f_leaf->pnext;
-    }
-
     leaf* cr_leaf;
     try {
       cr_leaf = m_Memory.newObject();
@@ -153,12 +136,9 @@ class CHash {
       throw CMemoryException();
     }
     cr_leaf->pData = pElement;
-    cr_leaf->pnext = nullptr;
+    cr_leaf->pnext = m_pTable[idx];
 
-    if (prev_leaf == nullptr)
-      m_pTable[idx] = cr_leaf;
-    else
-      prev_leaf->pnext = cr_leaf;
+    m_pTable[idx] = cr_leaf;
 
     return false;
   }
@@ -199,7 +179,7 @@ class CHash {
     } else {
       m_pTable[idx] = cur_leaf->pnext;
     }
-    m_Memory.deleteObject(f_leaf);
+    m_Memory.deleteObject(cur_leaf);
 
     return true;
   }
@@ -208,20 +188,9 @@ class CHash {
   Удаление всех элементов. Можно вызвать в деструкторе
   */
   void clear() {
-    for (int i = 0; i < m_tableSize; i++) {
-      leaf* tmp_leaf = m_pTable[i];
-      leaf* del_leaf = nullptr;
-      m_pTable[i] = nullptr;
+    for (int i = 0; i < m_tableSize; i++) m_pTable[i] = nullptr;
 
-      while (tmp_leaf != nullptr) {
-        del_leaf = tmp_leaf;
-        tmp_leaf = tmp_leaf->pnext;
-
-        // delete del_leaf->pData;
-        m_Memory.deleteObject(del_leaf);
-        del_leaf = nullptr;
-      }
-    }
+    m_Memory.clear();
   }
 
  private:

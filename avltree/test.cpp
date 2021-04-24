@@ -56,9 +56,10 @@ void TestTreeFunction() {
     testArrayPointer[i] = &(testArrayElements[i]);
     generate(testArrayPointer[i]);
   }
+  assert(false == tree.remove(*testArrayPointer[0]));
   for (int i = 0; i < ELEMENTS_COUNT; i++) {
     tree.add(testArrayPointer[i]);
-    tree.correctTree(tree.m_pRoot);
+    tree.correctTree();
     assert(true == tree.update(testArrayPointer[i]));
     assert(tree.find(*testArrayPointer[i]) == testArrayPointer[i]);
   }
@@ -68,16 +69,16 @@ void TestTreeFunction() {
   }
   for (int i = 0; i < ELEMENTS_COUNT; i++) {
     tree.remove(*testArrayPointer[i]);
-    tree.correctTree(tree.m_pRoot);
+    tree.correctTree();
   }
-  assert(nullptr == tree.m_pRoot);
+  assert(true == tree.isEmpty());
   templates::mergeSort<TestStruct>(testArrayPointer, ELEMENTS_COUNT, Compare);
   for (int i = 0; i < ELEMENTS_COUNT - 1; i++)
     assert(Compare(testArrayPointer[i], testArrayPointer[i + 1]) >= 0);
 
   for (int i = 0; i < ELEMENTS_COUNT; i++) {
     tree.add(testArrayPointer[i]);
-    tree.correctTree(tree.m_pRoot);
+    tree.correctTree();
     assert(true == tree.update(testArrayPointer[i]));
     assert(tree.find(*testArrayPointer[i]) == testArrayPointer[i]);
   }
@@ -87,12 +88,12 @@ void TestTreeFunction() {
   }
   for (int i = 0; i < ELEMENTS_COUNT; i++) {
     tree.remove(*testArrayPointer[i]);
-    tree.correctTree(tree.m_pRoot);
+    tree.correctTree();
   }
-  assert(nullptr == tree.m_pRoot);
+  assert(true == tree.isEmpty());
   for (int i = ELEMENTS_COUNT - 1; i > -1; i--) {
     tree.add(testArrayPointer[i]);
-    tree.correctTree(tree.m_pRoot);
+    tree.correctTree();
     assert(true == tree.update(testArrayPointer[i]));
     assert(tree.find(*testArrayPointer[i]) == testArrayPointer[i]);
   }
@@ -102,9 +103,9 @@ void TestTreeFunction() {
   }
   for (int i = ELEMENTS_COUNT - 1; i > -1; i--) {
     tree.remove(*testArrayPointer[i]);
-    tree.correctTree(tree.m_pRoot);
+    tree.correctTree();
   }
-  assert(nullptr == tree.m_pRoot);
+  assert(true == tree.isEmpty());
 }
 
 int main() { TestTreeFunction(); }
