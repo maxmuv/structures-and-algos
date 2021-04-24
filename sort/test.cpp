@@ -40,7 +40,7 @@ static void generate(TestStruct* pts) {
 }
 
 int Compare(const TestStruct* el1, const TestStruct* el2) {
-  return wcscmp(el2->key.c_str(), el1->key.c_str());
+  return -wcscmp(el2->key.c_str(), el1->key.c_str());
 }
 
 void TestSortFunction() {
