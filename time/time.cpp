@@ -1,5 +1,6 @@
 #include <cassert>
 #include <cstring>
+#include <fstream>
 #include <iostream>
 #include <string>
 
@@ -9,11 +10,10 @@
 #include "hash/hash.h"
 #include "sort/sort.h"
 
-const int ELEMENTS_COUNT = 10000;
-
 struct TestStruct {
   std::wstring key1;
   std::wstring key2;
+  std::wstring value1;
 };
 
 const wchar_t ALPHABET[] =
@@ -38,6 +38,7 @@ static std::wstring makeRandomString(int minL = 7, int maxL = 20) {
 static void generate(TestStruct* pts) {
   pts->key1 = makeRandomString();
   pts->key2 = makeRandomString();
+  pts->value1 = makeRandomString();
 }
 
 int Compare(const TestStruct* el1, const TestStruct* el2) {
@@ -87,12 +88,13 @@ TestStruct* binarySearch(const TestStruct& element, TestStruct** pPArray,
   }
 }
 
-int main() {
+void timeMeasurement(const int ELEMENTS_COUNT, std::ofstream& out) {
   // генерация объектов
   TestStruct* nElementsArray = new TestStruct[ELEMENTS_COUNT];
   TestStruct* doubleNELementsArray = new TestStruct[2 * ELEMENTS_COUNT];
   generateArray(nElementsArray, ELEMENTS_COUNT);
   generateArray(doubleNELementsArray, 2 * ELEMENTS_COUNT);
+  out << ELEMENTS_COUNT << ", ";
 
   // создание структур
   TestStruct** nPElementsArray = new TestStruct*[ELEMENTS_COUNT];
@@ -102,26 +104,30 @@ int main() {
 
   lab618::CAVLTree<TestStruct, Compare> tree;
 
-  lab618::CHash<TestStruct, HashFunc, Compare> h_table(256, 20);
+  lab618::CHash<TestStruct, HashFunc, Compare> h_table(ELEMENTS_COUNT, 100000);
 
   // размещение массива данных в структуры
   Timer timer;
   timer.reset();
+  double time;
 
   templates::mergeSort(nPElementsArray, ELEMENTS_COUNT, Compare);
-  std::cout << "Fill sorted array: " << timer.elapsed() << " microseconds.\n";
+  time = timer.elapsed();
+  out << time << ", ";
 
   timer.reset();
   for (int i = 0; i < ELEMENTS_COUNT; i++) {
     tree.add(&nElementsArray[i]);
   }
-  std::cout << "Fill AVL tree: " << timer.elapsed() << " microseconds.\n";
+  time = timer.elapsed();
+  out << time << ", ";
 
   timer.reset();
   for (int i = 0; i < ELEMENTS_COUNT; i++) {
     h_table.add(&nElementsArray[i]);
   }
-  std::cout << "Fill hash table: " << timer.elapsed() << " microseconds.\n";
+  time = timer.elapsed();
+  out << time << ", ";
 
   // поиск
   // Найти один раз все объекты из исходных данных;
@@ -135,8 +141,8 @@ int main() {
   for (int i = 0; i < ELEMENTS_COUNT; i++) {
     binarySearch(nElementsArray[i], nPElementsArray, ELEMENTS_COUNT);
   }
-  std::cout << "Search in sorted array (1 way): " << timer.elapsed()
-            << " microseconds.\n";
+  time = timer.elapsed();
+  out << time << ", ";
 
   for (int i = 0; i < ELEMENTS_COUNT; i++) {
     assert(&(nElementsArray[i]) == tree.find(nElementsArray[i]));
@@ -145,8 +151,8 @@ int main() {
   for (int i = 0; i < ELEMENTS_COUNT; i++) {
     tree.find(nElementsArray[i]);
   }
-  std::cout << "Search in AVL tree (1 way): " << timer.elapsed()
-            << " microseconds.\n";
+  time = timer.elapsed();
+  out << time << ", ";
 
   for (int i = 0; i < ELEMENTS_COUNT; i++) {
     assert(&(nElementsArray[i]) == h_table.find(nElementsArray[i]));
@@ -155,43 +161,46 @@ int main() {
   for (int i = 0; i < ELEMENTS_COUNT; i++) {
     h_table.find(nElementsArray[i]);
   }
-  std::cout << "Search in hash table (1 way): " << timer.elapsed()
-            << " microseconds.\n";
+  time = timer.elapsed();
+  out << time << ", ";
 
   // поиск 2N объектов
   timer.reset();
   for (int i = 0; i < 2 * ELEMENTS_COUNT; i++) {
     binarySearch(doubleNELementsArray[i], nPElementsArray, ELEMENTS_COUNT);
   }
-  std::cout << "Search in sorted array (2 way): " << timer.elapsed()
-            << " microseconds.\n";
+  time = timer.elapsed();
+  out << time << ", ";
 
   timer.reset();
   for (int i = 0; i < 2 * ELEMENTS_COUNT; i++) {
     tree.find(doubleNELementsArray[i]);
   }
-  std::cout << "Search in AVL tree (2 way): " << timer.elapsed()
-            << " microseconds.\n";
+  time = timer.elapsed();
+  out << time << ", ";
 
   timer.reset();
   for (int i = 0; i < 2 * ELEMENTS_COUNT; i++) {
     h_table.find(doubleNELementsArray[i]);
   }
-  std::cout << "Search in hash table (2 way): " << timer.elapsed()
-            << " microseconds.\n";
+  time = timer.elapsed();
+  out << time << ", ";
 
   // удаление
   timer.reset();
   delete[] nPElementsArray;
-  std::cout << "Delete sorted array: " << timer.elapsed() << " microseconds.\n";
+  time = timer.elapsed();
+  out << time << ", ";
 
   timer.reset();
   tree.clear();
-  std::cout << "Delete AVL tree: " << timer.elapsed() << " microseconds.\n";
+  time = timer.elapsed();
+  out << time << ", ";
 
   timer.reset();
   h_table.clear();
-  std::cout << "Delete hash table: " << timer.elapsed() << " microseconds.\n";
+  time = timer.elapsed();
+  out << time << ", ";
 
   // поэлементное удаление с проверкой
   for (int i = 0; i < ELEMENTS_COUNT; i++) {
@@ -207,8 +216,8 @@ int main() {
   for (int i = 0; i < ELEMENTS_COUNT; i++) {
     tree.remove(nElementsArray[i]);
   }
-  std::cout << "Remove elements of AVL tree: " << timer.elapsed()
-            << " microseconds.\n";
+  time = timer.elapsed();
+  out << time << ", ";
 
   for (int i = 0; i < ELEMENTS_COUNT; i++) {
     assert(true == h_table.add(&nElementsArray[i]));
@@ -223,9 +232,38 @@ int main() {
   for (int i = 0; i < ELEMENTS_COUNT; i++) {
     h_table.remove(nElementsArray[i]);
   }
-  std::cout << "Remove elements of hash table: " << timer.elapsed()
-            << " microseconds.\n";
+  time = timer.elapsed();
+  out << time << "\n";
 
   delete[] nElementsArray;
+}
+
+int main() {
+  // готовим файл для записи в формате csv
+  std::ofstream out("tm.csv");
+  out << "N, ";
+
+  out << "Fill sorted array, ";
+  out << "Fill AVL tree, ";
+  out << "Fill hash table, ";
+
+  out << "Search in sorted array (1 way), ";
+  out << "Search in AVL tree (1 way), ";
+  out << "Search in hash table (1 way), ";
+
+  out << "Search in sorted array (2 way), ";
+  out << "Search in AVL tree (2 way), ";
+  out << "Search in hash table (2 way), ";
+
+  out << "Delete sorted array, ";
+  out << "Delete AVL tree, ";
+  out << "Delete hash table, ";
+
+  out << "Remove elements of AVL tree, ";
+  out << "Remove elements of hash table\n";
+
+  for (int i = 10000; i < 1000000; i = int(double(i) * 1.1f)) {
+    timeMeasurement(i, out);
+  }
   return 0;
 }

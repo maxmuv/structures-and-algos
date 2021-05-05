@@ -22,7 +22,7 @@ class CAVLTree {
   };
 
  public:
-  CAVLTree() : m_Memory(50, true), m_pRoot(nullptr) {}
+  CAVLTree() : m_Memory(100000, true), m_pRoot(nullptr) {}
 
   virtual ~CAVLTree() { clear(); }
 
@@ -34,11 +34,10 @@ class CAVLTree {
   T* find(const T& pElement) {
     if (nullptr == m_pRoot) return nullptr;
     leaf* curLeaf = m_pRoot;
-    T data = pElement;
-    if (Compare(curLeaf->pData, &data) >
+    if (Compare(curLeaf->pData, &pElement) >
         0) {  // ключ в данных корня меньше, чем у элемента
       m_pRoot = curLeaf->pRight;
-    } else if (Compare(curLeaf->pData, &data) <
+    } else if (Compare(curLeaf->pData, &pElement) <
                0) {  // ключ в данных корня больше, чем у элемента
       m_pRoot = curLeaf->pLeft;
     } else {
@@ -192,14 +191,13 @@ class CAVLTree {
     }
 
     if (nullptr == target) {
-      T el = element;
       bool right;
       leaf* curLeaf;
-      if (Compare(m_pRoot->pData, &el) > 0) {
+      if (Compare(m_pRoot->pData, &element) > 0) {
         right = true;
         curLeaf = m_pRoot;
         m_pRoot = curLeaf->pRight;
-      } else if (Compare(m_pRoot->pData, &el) < 0) {
+      } else if (Compare(m_pRoot->pData, &element) < 0) {
         right = false;
         curLeaf = m_pRoot;
         m_pRoot = curLeaf->pLeft;

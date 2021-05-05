@@ -90,6 +90,7 @@ class CHash {
   virtual ~CHash() {
     clear();
     delete[] m_pTable;
+    m_pTable = nullptr;
   }
 
   /**
