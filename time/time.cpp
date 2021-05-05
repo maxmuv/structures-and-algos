@@ -88,7 +88,9 @@ TestStruct* binarySearch(const TestStruct& element, TestStruct** pPArray,
   }
 }
 
-void timeMeasurement(const int ELEMENTS_COUNT, std::ofstream& out) {
+void timeMeasurement(const int ELEMENTS_COUNT) {
+  std::cout << ELEMENTS_COUNT << std::endl;
+  std::ofstream out("tm.csv", std::ios::app);
   // генерация объектов
   TestStruct* nElementsArray = new TestStruct[ELEMENTS_COUNT];
   TestStruct* doubleNELementsArray = new TestStruct[2 * ELEMENTS_COUNT];
@@ -236,6 +238,9 @@ void timeMeasurement(const int ELEMENTS_COUNT, std::ofstream& out) {
   out << time << "\n";
 
   delete[] nElementsArray;
+  delete[] doubleNELementsArray;
+
+  out.close();
 }
 
 int main() {
@@ -262,8 +267,9 @@ int main() {
   out << "Remove elements of AVL tree, ";
   out << "Remove elements of hash table\n";
 
+  out.close();
   for (int i = 10000; i < 1000000; i = int(double(i) * 1.1f)) {
-    timeMeasurement(i, out);
+    timeMeasurement(i);
   }
   return 0;
 }
