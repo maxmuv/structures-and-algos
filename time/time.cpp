@@ -88,14 +88,10 @@ TestStruct* binarySearch(const TestStruct& element, TestStruct** pPArray,
   }
 }
 
-void timeMeasurement(const int ELEMENTS_COUNT) {
+void timeMeasurement(const int ELEMENTS_COUNT, TestStruct* nElementsArray,
+                     TestStruct* doubleNELementsArray) {
   std::cout << ELEMENTS_COUNT << std::endl;
   std::ofstream out("tm.csv", std::ios::app);
-  // генерация объектов
-  TestStruct* nElementsArray = new TestStruct[ELEMENTS_COUNT];
-  TestStruct* doubleNELementsArray = new TestStruct[2 * ELEMENTS_COUNT];
-  generateArray(nElementsArray, ELEMENTS_COUNT);
-  generateArray(doubleNELementsArray, 2 * ELEMENTS_COUNT);
   out << ELEMENTS_COUNT << ", ";
 
   // создание структур
@@ -237,39 +233,20 @@ void timeMeasurement(const int ELEMENTS_COUNT) {
   time = timer.elapsed();
   out << time << "\n";
 
-  delete[] nElementsArray;
-  delete[] doubleNELementsArray;
-
   out.close();
 }
 
 int main() {
   // готовим файл для записи в формате csv
-  std::ofstream out("tm.csv");
-  out << "N, ";
-
-  out << "Fill sorted array, ";
-  out << "Fill AVL tree, ";
-  out << "Fill hash table, ";
-
-  out << "Search in sorted array (1 way), ";
-  out << "Search in AVL tree (1 way), ";
-  out << "Search in hash table (1 way), ";
-
-  out << "Search in sorted array (2 way), ";
-  out << "Search in AVL tree (2 way), ";
-  out << "Search in hash table (2 way), ";
-
-  out << "Delete sorted array, ";
-  out << "Delete AVL tree, ";
-  out << "Delete hash table, ";
-
-  out << "Remove elements of AVL tree, ";
-  out << "Remove elements of hash table\n";
-
-  out.close();
-  for (int i = 10000; i < 1000000; i = int(double(i) * 1.1f)) {
-    timeMeasurement(i);
+  // генерация объектов
+  TestStruct* nElementsArray = new TestStruct[1000000];
+  TestStruct* doubleNELementsArray = new TestStruct[2000000];
+  generateArray(nElementsArray, 1000000);
+  generateArray(doubleNELementsArray, 2000000);
+  for (int i = 547459; i < 1000000; i = int(double(i) * 1.1f)) {
+    timeMeasurement(i, nElementsArray, doubleNELementsArray);
   }
+  delete[] nElementsArray;
+  delete[] doubleNELementsArray;
   return 0;
 }
