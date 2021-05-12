@@ -6,7 +6,7 @@
 #include "avltree.h"
 #include "sort.h"
 
-const int ELEMENTS_COUNT = 80000;
+const int ELEMENTS_COUNT = 10000;
 
 struct TestStruct {
   std::wstring key;

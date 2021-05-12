@@ -34,11 +34,10 @@ class CAVLTree {
   T* find(const T& pElement) {
     if (nullptr == m_pRoot) return nullptr;
     leaf* curLeaf = m_pRoot;
-    if (Compare(curLeaf->pData, &pElement) >
-        0) {  // ключ в данных корня меньше, чем у элемента
+    int cmp = Compare(curLeaf->pData, &pElement);
+    if (cmp > 0) {  // ключ в данных корня меньше, чем у элемента
       m_pRoot = curLeaf->pRight;
-    } else if (Compare(curLeaf->pData, &pElement) <
-               0) {  // ключ в данных корня больше, чем у элемента
+    } else if (cmp < 0) {  // ключ в данных корня больше, чем у элемента
       m_pRoot = curLeaf->pLeft;
     } else {
       return curLeaf->pData;
@@ -101,8 +100,8 @@ class CAVLTree {
     bool right;
     // изменим корень для дальнейшего рекурсивного спуска
     leaf* curLeaf = m_pRoot;
-    if (Compare(curLeaf->pData, pElement) >
-        0) {  // ключ в данных корня меньше, чем у элемента
+    int cmp = Compare(curLeaf->pData, pElement);
+    if (cmp > 0) {  // ключ в данных корня меньше, чем у элемента
       m_pRoot = curLeaf->pRight;
       right = true;
       if (nullptr != curLeaf->pRight) {
@@ -112,8 +111,7 @@ class CAVLTree {
         oldChildBF = 0;
         newChildBF = 1;
       }
-    } else if (Compare(curLeaf->pData, pElement) <
-               0) {  // ключ в данных корня больше, чем у элемента
+    } else if (cmp < 0) {  // ключ в данных корня больше, чем у элемента
       m_pRoot = curLeaf->pLeft;
       right = false;
       if (nullptr != curLeaf->pLeft) {
@@ -193,11 +191,12 @@ class CAVLTree {
     if (nullptr == target) {
       bool right;
       leaf* curLeaf;
-      if (Compare(m_pRoot->pData, &element) > 0) {
+      int cmp = Compare(m_pRoot->pData, &element);
+      if (cmp > 0) {
         right = true;
         curLeaf = m_pRoot;
         m_pRoot = curLeaf->pRight;
-      } else if (Compare(m_pRoot->pData, &element) < 0) {
+      } else if (cmp < 0) {
         right = false;
         curLeaf = m_pRoot;
         m_pRoot = curLeaf->pLeft;

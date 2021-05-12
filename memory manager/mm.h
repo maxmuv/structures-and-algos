@@ -93,14 +93,12 @@ class CMemoryManager {
     if (m_pBlocks == 0) return false;
     m_pCurrentBlk = 0;
     block *p_tmpblock = m_pBlocks;
-    block *p_prevblock = 0;
     int find = -1;
     if (p_tmpblock->firstFreeIndex != -1) m_pCurrentBlk = p_tmpblock;
     for (int i = 0; i < m_blkSize; i++) {
       if (p == &(p_tmpblock->pdata[i])) find = i;
     }
     while ((find == -1) && (p_tmpblock->pnext != 0)) {
-      p_prevblock = p_tmpblock;
       p_tmpblock = p_tmpblock->pnext;
       if (p_tmpblock->firstFreeIndex != -1) m_pCurrentBlk = p_tmpblock;
       for (int i = 0; i < m_blkSize; i++) {
@@ -137,18 +135,6 @@ class CMemoryManager {
         *reinterpret_cast<int *>(&(p_tmpblock->pdata[find])) = -1;
         *reinterpret_cast<int *>(&(p_tmpblock->pdata[lastfreeindex])) = find;
         p_tmpblock->usedCount--;
-      }
-
-      if (p_tmpblock->usedCount == 0) {
-        block *p_nextblock = p_tmpblock->pnext;
-        deleteBlock(p_tmpblock, manager_map);
-        if (p_prevblock) {
-          p_prevblock->pnext = p_nextblock;
-        } else {
-          m_pBlocks = p_nextblock;
-        }
-        m_pCurrentBlk = m_pBlocks;
-        p_tmpblock = 0;
       }
 
       delete[] manager_map;

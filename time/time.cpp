@@ -78,9 +78,10 @@ TestStruct* binarySearch(const TestStruct& element, TestStruct** pPArray,
                          int size) {
   if (0 == size) return nullptr;
   TestStruct el = element;
-  if (Compare(&el, pPArray[size / 2]) > 0) {
+  int cmp = Compare(&el, pPArray[size / 2]);
+  if (cmp > 0) {
     return binarySearch(element, pPArray, size / 2);
-  } else if (Compare(&el, pPArray[size / 2]) < 0) {
+  } else if (cmp < 0) {
     if (size == 1) return nullptr;
     return binarySearch(element, pPArray + size / 2, size - size / 2);
   } else {
@@ -243,7 +244,7 @@ int main() {
   TestStruct* doubleNELementsArray = new TestStruct[2000000];
   generateArray(nElementsArray, 1000000);
   generateArray(doubleNELementsArray, 2000000);
-  for (int i = 547459; i < 1000000; i = int(double(i) * 1.1f)) {
+  for (int i = 10000; i < 1000000; i = int(double(i) * 1.1f)) {
     timeMeasurement(i, nElementsArray, doubleNELementsArray);
   }
   delete[] nElementsArray;
