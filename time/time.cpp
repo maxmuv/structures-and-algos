@@ -62,15 +62,6 @@ unsigned int HashFunc(const TestStruct* pElement) {
 void generateArray(TestStruct* pArray, int count) {
   for (int i = 0; i < count; i++) {
     generate(&pArray[i]);
-    int j = 0;
-    while (i != j) {
-      if (0 == Compare(&pArray[i], &pArray[j])) {
-        j = 0;
-        generate(&pArray[i]);
-        continue;
-      }
-      j++;
-    }
   }
 }
 
@@ -78,14 +69,15 @@ TestStruct* binarySearch(const TestStruct& element, TestStruct** pPArray,
                          int size) {
   if (0 == size) return nullptr;
   TestStruct el = element;
-  int cmp = Compare(&el, pPArray[size / 2]);
+  int half = size / 2;
+  int cmp = Compare(&el, pPArray[half]);
   if (cmp > 0) {
-    return binarySearch(element, pPArray, size / 2);
+    return binarySearch(element, pPArray, half);
   } else if (cmp < 0) {
     if (size == 1) return nullptr;
-    return binarySearch(element, pPArray + size / 2, size - size / 2);
+    return binarySearch(element, pPArray + half + 1, size - half - 1);
   } else {
-    return pPArray[size / 2];
+    return pPArray[half];
   }
 }
 
@@ -244,9 +236,11 @@ int main() {
   TestStruct* doubleNELementsArray = new TestStruct[2000000];
   generateArray(nElementsArray, 1000000);
   generateArray(doubleNELementsArray, 2000000);
-  for (int i = 10000; i < 1000000; i = int(double(i) * 1.1f)) {
+  for (int i = 10000; i < 1000000; i = int(double(i) * 1.6f)) {
     timeMeasurement(i, nElementsArray, doubleNELementsArray);
   }
+  timeMeasurement(800000, nElementsArray, doubleNELementsArray);
+  timeMeasurement(1000000, nElementsArray, doubleNELementsArray);
   delete[] nElementsArray;
   delete[] doubleNELementsArray;
   return 0;

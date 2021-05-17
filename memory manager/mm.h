@@ -95,33 +95,18 @@ class CMemoryManager {
     block *p_tmpblock = m_pBlocks;
     int find = -1;
     if (p_tmpblock->firstFreeIndex != -1) m_pCurrentBlk = p_tmpblock;
-    for (int i = 0; i < m_blkSize; i++) {
-      if (p == &(p_tmpblock->pdata[i])) find = i;
-    }
+    if ((p_tmpblock->pdata < p) && (p_tmpblock->pdata + m_blkSize > p))
+      find = p - p_tmpblock->pdata;
     while ((find == -1) && (p_tmpblock->pnext != 0)) {
       p_tmpblock = p_tmpblock->pnext;
       if (p_tmpblock->firstFreeIndex != -1) m_pCurrentBlk = p_tmpblock;
-      for (int i = 0; i < m_blkSize; i++) {
-        if (p == &(p_tmpblock->pdata[i])) find = i;
-      }
+      if ((p_tmpblock->pdata < p) && (p_tmpblock->pdata + m_blkSize > p))
+        find = p - p_tmpblock->pdata;
     }
     if (find != -1) {
       if (!m_pCurrentBlk) m_pCurrentBlk = p_tmpblock;
-      bool *manager_map = new bool[m_blkSize];
-      memset(reinterpret_cast<void *>(manager_map), 0,
-             m_blkSize * sizeof(bool));
       int freeindex = p_tmpblock->firstFreeIndex;
       int lastfreeindex = freeindex;
-      for (; freeindex != -1; freeindex = *reinterpret_cast<int *>(
-                                  &(p_tmpblock->pdata[freeindex]))) {
-        manager_map[freeindex] = 1;
-        lastfreeindex = freeindex;
-      }
-      if (manager_map[find] == 1) {
-        delete[] manager_map;
-        manager_map = 0;
-        return false;
-      }
 
       (&(p_tmpblock->pdata[find]))->~T();
       memset(reinterpret_cast<void *>(&(p_tmpblock->pdata[find])), 0,
@@ -132,13 +117,10 @@ class CMemoryManager {
         *reinterpret_cast<int *>(&(p_tmpblock->pdata[find])) = -1;
         p_tmpblock->usedCount--;
       } else {
-        *reinterpret_cast<int *>(&(p_tmpblock->pdata[find])) = -1;
-        *reinterpret_cast<int *>(&(p_tmpblock->pdata[lastfreeindex])) = find;
+        *reinterpret_cast<int *>(&(p_tmpblock->pdata[find])) = lastfreeindex;
         p_tmpblock->usedCount--;
       }
 
-      delete[] manager_map;
-      manager_map = 0;
       return true;
     }
     m_pCurrentBlk = m_pBlocks;
