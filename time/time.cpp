@@ -68,13 +68,11 @@ void generateArray(TestStruct* pArray, int count) {
 TestStruct* binarySearch(const TestStruct& element, TestStruct** pPArray,
                          int size) {
   if (0 == size) return nullptr;
-  TestStruct el = element;
   int half = size / 2;
-  int cmp = Compare(&el, pPArray[half]);
+  int cmp = Compare(&element, pPArray[half]);
   if (cmp > 0) {
     return binarySearch(element, pPArray, half);
   } else if (cmp < 0) {
-    if (size == 1) return nullptr;
     return binarySearch(element, pPArray + half + 1, size - half - 1);
   } else {
     return pPArray[half];
